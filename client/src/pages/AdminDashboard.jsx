@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { CheckCircle, Clock, MapPin, ExternalLink, RefreshCcw, LayoutPanelLeft } from 'lucide-react';
+import { CheckCircle, Clock, MapPin, ExternalLink, RefreshCcw, LayoutPanelLeft, Trash2 } from 'lucide-react';
 
 function AdminDashboard() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch all reports from our Node.js Backend
   const fetchReports = async () => {
     setLoading(true);
     try {
@@ -23,7 +22,6 @@ function AdminDashboard() {
     fetchReports();
   }, []);
 
-  // Safe Date Formatting Helper
   const formatDate = (dateString) => {
     if (!dateString) return 'Pending...';
     const date = new Date(dateString);
@@ -36,24 +34,34 @@ function AdminDashboard() {
       : 'Invalid Date';
   };
 
-  // Update Status Logic (Pending -> Resolved)
   const handleUpdateStatus = async (id, newStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/reports/update-status/${id}`, {
         status: newStatus
       });
-      
-      // Update local state instantly for better UX
       setReports(reports.map(r => r._id === id ? { ...r, status: newStatus } : r));
     } catch (err) {
       console.error("Update Error:", err);
-      alert("Failed to update status. Please check if backend is running.");
+      alert("Failed to update status.");
+    }
+  };
+
+  // --- NEW: Delete Logic ---
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this report permanently?")) {
+      try {
+        await axios.delete(`http://localhost:5000/api/reports/delete/${id}`);
+        // Remove from local state
+        setReports(reports.filter(r => r._id !== id));
+      } catch (err) {
+        console.error("Delete Error:", err);
+        alert("Failed to delete report.");
+      }
     }
   };
 
   return (
     <div className="max-w-6xl mx-auto pb-10">
-      {/* Admin Header */}
       <div className="flex items-center justify-between mb-10">
         <div className="flex items-center gap-4">
           <div className="bg-slate-900 p-3 rounded-2xl shadow-lg shadow-slate-200">
@@ -74,8 +82,7 @@ function AdminDashboard() {
         </button>
       </div>
 
-      {/* Main Data Table */}
-      <div className="bg-white rounded-[2rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
+      <div className="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100 overflow-hidden">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-slate-50/50 border-b border-slate-100">
@@ -83,13 +90,12 @@ function AdminDashboard() {
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Category</th>
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Location Search</th>
               <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em]">Status & Date</th>
-              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right">Action</th>
+              <th className="p-6 text-[10px] font-black uppercase text-slate-400 tracking-[0.2em] text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-50">
             {reports.map((report) => (
               <tr key={report._id} className="hover:bg-blue-50/20 transition-all group">
-                {/* Issue and ID */}
                 <td className="p-6">
                   <div className="flex items-center gap-4">
                     {report.imageUrl ? (
@@ -106,17 +112,15 @@ function AdminDashboard() {
                   </div>
                 </td>
 
-                {/* Category */}
                 <td className="p-6">
                   <span className="text-[10px] font-black px-3 py-1 bg-slate-100 text-slate-500 rounded-lg uppercase tracking-wider">
                     {report.category}
                   </span>
                 </td>
 
-                {/* Location with Google Maps Redirect */}
                 <td className="p-6">
                   <a 
-                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
+                    href={`http://googleusercontent.com/maps.google.com/search?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
                     target="_blank" 
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100/50"
@@ -127,7 +131,6 @@ function AdminDashboard() {
                   </a>
                 </td>
 
-                {/* Status and Formatted Date */}
                 <td className="p-6">
                   <div className="space-y-1">
                     <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wide ${
@@ -146,27 +149,36 @@ function AdminDashboard() {
                   </div>
                 </td>
 
-                {/* Actions */}
+                {/* --- Updated Actions Section --- */}
                 <td className="p-6 text-right">
-                  {report.status !== 'Resolved' ? (
+                  <div className="flex items-center justify-end gap-3">
+                    {report.status !== 'Resolved' ? (
+                      <button 
+                        onClick={() => handleUpdateStatus(report._id, 'Resolved')}
+                        className="px-4 py-2 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 transition-all active:scale-95 shadow-md shadow-blue-100"
+                      >
+                        Resolve
+                      </button>
+                    ) : (
+                      <span className="text-slate-300 font-black text-[10px] uppercase tracking-widest italic flex items-center gap-1">
+                        <CheckCircle size={12}/> Closed
+                      </span>
+                    )}
+                    
                     <button 
-                      onClick={() => handleUpdateStatus(report._id, 'Resolved')}
-                      className="px-5 py-2 bg-blue-600 text-white text-[11px] font-black uppercase tracking-widest rounded-xl hover:bg-slate-900 shadow-lg shadow-blue-100 transition-all active:scale-95"
+                      onClick={() => handleDelete(report._id)}
+                      className="p-2 text-slate-300 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all active:scale-90"
+                      title="Delete Report"
                     >
-                      Resolve
+                      <Trash2 size={18} />
                     </button>
-                  ) : (
-                    <div className="flex items-center justify-end gap-1 text-slate-300 font-black text-[11px] uppercase tracking-widest italic">
-                      <CheckCircle size={14} /> Closed
-                    </div>
-                  )}
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        {/* Empty State / Loading State */}
         {loading && (
           <div className="p-20 text-center">
             <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
@@ -180,7 +192,7 @@ function AdminDashboard() {
                <Clock className="text-slate-200" size={32} />
             </div>
             <p className="text-slate-800 font-black text-lg">No Active Complaints</p>
-            <p className="text-slate-400 text-sm font-medium mt-1">The city is looking good! No issues found.</p>
+            <p className="text-slate-400 text-sm font-medium mt-1">Everything looks clean!</p>
           </div>
         )}
       </div>

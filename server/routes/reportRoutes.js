@@ -6,6 +6,7 @@ const upload = require('../middleware/multer');
 /**
  * @route   POST /api/reports/add
  * @desc    Submit a new civic issue with image proof
+ * @access  Public
  */
 router.post('/add', upload.single('image'), async (req, res) => {
   try {
@@ -34,6 +35,7 @@ router.post('/add', upload.single('image'), async (req, res) => {
 /**
  * @route   GET /api/reports/all
  * @desc    Fetch all issues for the feed
+ * @access  Public
  */
 router.get('/all', async (req, res) => {
   try {
@@ -47,6 +49,7 @@ router.get('/all', async (req, res) => {
 /**
  * @route   PUT /api/reports/update-status/:id
  * @desc    Update report status (Resolve issue)
+ * @access  Admin
  */
 router.put('/update-status/:id', async (req, res) => {
   try {
@@ -67,6 +70,27 @@ router.put('/update-status/:id', async (req, res) => {
   } catch (err) {
     console.error("Update Error:", err);
     res.status(400).json({ message: "Update failed", error: err.message });
+  }
+});
+
+/**
+ * @route   DELETE /api/reports/delete/:id
+ * @desc    Delete a report permanently from the database
+ * @access  Admin
+ */
+router.delete('/delete/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedReport = await Report.findByIdAndDelete(id);
+
+    if (!deletedReport) {
+      return res.status(404).json({ message: "Report not found" });
+    }
+
+    res.json({ message: "Report successfully removed from the system" });
+  } catch (err) {
+    console.error("Delete Error:", err);
+    res.status(500).json({ message: "Server error during deletion", error: err.message });
   }
 });
 
