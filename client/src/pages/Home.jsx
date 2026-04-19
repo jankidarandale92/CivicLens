@@ -103,7 +103,7 @@ function Home() {
                   
                   {/* Fixed Map Redirection URL */}
                   <a 
-                    href={`https://www.google.com/maps/search/?api=1&query=${report.location.latitude},${report.location.longitude}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location.address)}`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-blue-600 text-xs font-bold hover:underline flex items-center gap-1 bg-blue-50 px-3 py-1.5 rounded-lg transition-colors hover:bg-blue-100"

@@ -88,7 +88,7 @@ function AdminDashboard() {
                 <td className="p-4">
                   {/* Fixed Google Maps URL for exact GPS pinning */}
                   <a 
-                    href={`https://www.google.com/maps/search/?api=1&query=${report.location.latitude},${report.location.longitude}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location.address)}`}
                     target="_blank" 
                     rel="noreferrer"
                     className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
