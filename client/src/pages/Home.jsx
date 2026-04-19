@@ -160,12 +160,12 @@ function Home() {
                         <span className="text-[10px] font-bold uppercase truncate">{report.location?.address || "Location Verified"}</span>
                       </div>
                       <a 
-                        href={`http://googleusercontent.com/maps.google.com/search?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
-                        target="_blank" rel="noopener noreferrer"
-                        className="text-blue-600 text-xs font-black hover:underline flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-lg"
-                      >
-                        Map <ExternalLink size={12} />
-                      </a>
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="text-blue-600 text-xs font-black hover:underline flex items-center gap-1 bg-blue-50 px-3 py-1 rounded-lg">
+                          Map <ExternalLink size={12} />
+                        </a>
                     </div>
                   </div>
                 </div>

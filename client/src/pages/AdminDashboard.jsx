@@ -120,7 +120,7 @@ function AdminDashboard() {
 
                 <td className="p-6">
                   <a 
-                    href={`http://googleusercontent.com/maps.google.com/search?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(report.location?.address || report.title)}`}
                     target="_blank" 
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 text-xs font-bold text-blue-600 hover:text-blue-800 transition-colors bg-blue-50/50 px-3 py-1.5 rounded-xl border border-blue-100/50"
