@@ -6,6 +6,7 @@ function AdminDashboard() {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch all reports from our Node.js Backend
   const fetchReports = async () => {
     setLoading(true);
     try {
@@ -22,15 +23,19 @@ function AdminDashboard() {
     fetchReports();
   }, []);
 
+  // Update Status Logic (Pending -> Resolved)
   const handleUpdateStatus = async (id, newStatus) => {
     try {
+      // Matches the PUT route: /api/reports/update-status/:id
       await axios.put(`http://localhost:5000/api/reports/update-status/${id}`, {
         status: newStatus
       });
-      // Update local state instead of re-fetching to make it feel "instant"
+      
+      // Update local state instantly for better UX
       setReports(reports.map(r => r._id === id ? { ...r, status: newStatus } : r));
     } catch (err) {
-      alert("Failed to update status.");
+      console.error("Update Error:", err);
+      alert("Failed to update status. Please check if backend is running.");
     }
   };
 
@@ -71,7 +76,7 @@ function AdminDashboard() {
                     )}
                     <div>
                       <div className="font-bold text-slate-800">{report.title}</div>
-                      <div className="text-[10px] text-slate-400 font-medium">ID: {report._id.slice(-6)}</div>
+                      <div className="text-[10px] text-slate-400 font-medium tracking-tight">ID: {report._id.slice(-6)}</div>
                     </div>
                   </div>
                 </td>
@@ -81,9 +86,11 @@ function AdminDashboard() {
                   </span>
                 </td>
                 <td className="p-4">
+                  {/* Fixed Google Maps URL for exact GPS pinning */}
                   <a 
-                    href={`https://www.google.com/maps?q=${report.location.latitude},${report.location.longitude}`}
-                    target="_blank" rel="noreferrer"
+                    href={`https://www.google.com/maps/search/?api=1&query=${report.location.latitude},${report.location.longitude}`}
+                    target="_blank" 
+                    rel="noreferrer"
                     className="flex items-center gap-1 text-xs font-bold text-blue-600 hover:underline"
                   >
                     <MapPin size={14} /> Open Map <ExternalLink size={10} />
@@ -113,6 +120,7 @@ function AdminDashboard() {
             ))}
           </tbody>
         </table>
+
         {reports.length === 0 && !loading && (
           <div className="p-20 text-center text-slate-400 font-medium">
             No complaints found in the database.
